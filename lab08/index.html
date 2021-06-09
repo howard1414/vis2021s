@@ -1,14 +1,161 @@
 <!DOCTYPE html>
 <html lang="zh-Hant-TW">
-  <head>
-    <meta charset="utf-8">
-    <title>D3 Page Template</title>
-    <script src="http://d3js.org/d3.v6.min.js" charset="utf-8"></script> <!-- v6.5.0 -->
-</head>
-<body>
-    <script type="text/javascript">
-      // Your beautiful D3 code will go here
-    </script>
-  </body>
-</html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Lab 8</title>
   
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@900&display=swap');
+
+    @keyframes letterDraw {
+      1% {
+        opacity: 1;
+      }
+
+      to {
+        stroke-dashoffset: 0;
+        opacity: 1;
+      }
+    }
+
+    h1,
+    div {
+      background-color: rgba(255, 255, 0, 0.1);
+      font-family: 'Noto Serif JP', serif;
+      font-size: 24pt;
+      border: solid 1px black;
+      width: 90%;
+      margin: 5px auto;
+      padding: 10px;
+    }
+
+    div {
+      font-size: 12pt;
+    }
+
+    body {
+      background-color: rgba(255, 128, 255, 0.1);
+    }
+  </style>
+  <script src="https://d3js.org/d3.v6.min.js" charset="utf-8"></script> <!-- v6.5.0 -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<body>
+  <h1>
+    lab08 漢字書寫 (鉛筆字) (毛筆字也OK!) Path Animation
+  </h1>
+  <div>
+    限定使用 D3.js，參考以下影片。
+    <ul>
+      <li><a href="https://bl.ocks.org/basilesimon/f164aec5758d16d51d248e41af5428e4">Animate path in D3</a></li>
+      <li><a href="https://codepen.io/MyXoToD/post/howto-self-drawing-svg-animation">"Self-Drawing" SVG</a></li>
+      <li><a href="https://stackoverflow.com/questions/15275362/how-to-transition-a-path-in-d3-js">How to transition a
+          path in d3.js</a></li>
+      <li><a href="https://css-tricks.com/svg-line-animation-works/">How SVG Line Animation Works</a></li>
+      <li><a href="http://blog.roachking.net/blog/2014/10/31/osolve-team-drawing-animation/">使用 SVG 將圖片做成動畫</a></li>
+      <li><a href="https://www.hesyifei.com/">何一非</a></li>
+    </ul>
+  </div>
+
+  <div id="demo">
+    Demo
+    (I Suggest you watching on Google Chrome!)
+    <br />
+    <label id="speed_lable" for="speed">Speed:</label>
+    <select id="speed">
+    </select>
+    <br />
+    <label for="color">Color:</label>
+    <input id="color" type="color" value="#4c4cd6">
+    <br/>
+    <button id="replay">Replay</button>
+    <hr>
+
+    <svg id="first" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
+      viewBox="0 0 258 258" width="256">
+      
+      <clippath id="yclip">
+        <path fill="none" id="path2" d="M968 724L904 788L832 724H528L536 700H704Q696 664 688 632Q676 596 672 564H616L552 612V12Q552 4 560 4Q568 4 576 4Q604 4 604 16Q608 28 608 52H864Q860 28 864 16Q864 4 888 4Q892 4 900 8Q908 12 912 20V492Q912 504 940 508Q964 508 968 524Q964 552 936 572Q912 592 904 604L848 564H704Q720 596 736 632Q748 664 768 700H968V724V724V724ZM864 396H608V532H864V396V396V396ZM864 244H608V372H864V244V244V244ZM864 84H608V212H864V84V84V84ZM512 668L456 732L408 676H296V708Q304 720 320 724Q340 728 344 748Q340 772 304 776Q264 776 240 780V676H48L56 644H504L512 668V668V668ZM432 580Q428 596 400 608Q372 624 360 636Q340 620 328 600Q312 584 296 564Q260 580 216 592Q168 604 136 604L128 580Q160 576 192 564Q220 552 256 532H248Q212 520 180 504Q144 484 112 476L128 452Q164 460 212 476Q256 492 296 516Q312 504 344 480Q372 456 392 452Q404 456 412 464Q420 472 424 484Q420 504 392 520Q364 536 352 548Q356 556 364 556Q368 560 376 564Q384 564 384 572Q388 572 400 568Q408 568 416 564Q420 568 424 572Q428 576 432 580V580V580ZM984 -140Q976 -96 904 -48Q836 0 800 4L784 -20Q824 -44 856 -72Q888 -104 920 -140Q924 -152 932 -156Q940 -164 952 -164Q964 -164 972 -156Q980 -152 984 -140V-140V-140ZM448 316Q444 332 416 344Q388 360 376 372Q324 320 280 288Q232 256 160 236L176 212Q204 220 236 228Q268 236 304 244Q328 260 348 276Q372 296 392 300Q392 300 400 308L432 300Q436 304 440 308Q444 312 448 316V316V316ZM728 -44Q724 -28 692 -12Q660 4 648 4Q600 -52 544 -92Q492 -128 416 -148L424 -172Q528 -156 672 -60Q672 -60 680 -60H704L720 -52Q728 -52 728 -44V-44V-44ZM496 188Q492 208 460 220Q428 236 416 244Q372 180 300 132Q228 88 152 68L160 44Q236 64 304 92Q372 120 440 172Q440 180 448 180L472 172Q484 176 488 180Q496 184 496 188V188V188ZM520 428L456 484L384 428H112Q100 436 92 444Q80 456 72 460Q72 324 72 164Q72 0 24 -132L40 -140Q116 -32 124 116Q132 268 128 396H144H512L520 428V428V428ZM520 20Q516 40 488 56Q460 72 448 76Q364 0 292 -40Q220 -84 112 -108L120 -132Q168 -124 220 -112Q268 -96 320 -76Q348 -64 372 -48Q400 -36 424 -20Q432 -12 444 -4Q452 8 464 12H472Q476 12 484 8Q492 8 504 4Q508 8 512 12Q516 16 520 20V20V20V21V20Z" />
+	  </clippath>
+
+    </svg>
+
+
+    <svg id="second" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
+      viewBox="0 0 258 258" width="256">
+      
+      <clippath id="xclip">
+        
+      </clippath>
+    </svg>
+    <svg id="third" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
+      viewBox="0 0 258 258" width="256">
+      <g id="zpath">
+        
+      </g>
+      <clippath id="zclip">
+        
+      </clippath>
+    </svg>
+  </div>
+
+  <div>
+    展示區 (姓名)
+    <hr>
+    <img id="Yen" width="256" src="./Yen.svg">
+    <img id="Kuan" width="256" src="./Kuan.svg">
+    <img id="Hao" width="256" src="./Hao.svg">
+    <br/>
+    <img id="Yen" width="256" src="./Yen.svg">
+    <img id="Kuan" width="256" src="./Kuan.svg">
+    <img id="Hao" width="256" src="./Hao.svg">
+    <br/>
+  </div>
+
+  <div>
+    Drag and Drop 展示區 (接收任何SVG)
+  </div>
+
+  <script type="text/javascript">
+    // Your beautiful D3 code will go here
+    for (let i = 1; i <= 10; i++) {
+      $("#speed").append(new Option(i, i));
+    }
+    $("#speed").val(5);
+    $("#speed").bind("change", changeVal);
+    $("#color").bind("change", changeVal);
+    $("#replay").bind("click",changeVal);
+    changeVal();
+
+    function changeVal() {
+      var speed = $("#speed").val();
+      var color = $("#color").val();
+      setPathCss(speed, color, "#ypath", "#yclip");
+      setPathCss(speed, color, "#xpath", "#xclip");
+      setPathCss(speed, color, "#zpath", "#zclip");
+    }
+
+    function setPathCss(speed, color, id, cid) {
+      var obj = $(id).find('path');
+      var total = 0;
+      $(id).css('fill', 'none');
+      $(id).css('stroke-width', '20');
+      $(id).css('stroke', color);
+      $(id).css('clip-path', 'url(' + cid + ')');
+      for (let i = 0; i < obj.length; i++) {
+        $('#' + obj[i].id).css('animation', '');
+      }
+      for (let i = 0; i < obj.length; i++) {
+        var length = obj[i].getTotalLength();
+        $('#' + obj[i].id).css("opacity", 0);
+        $('#' + obj[i].id).css("stroke-dasharray", length);
+        $('#' + obj[i].id).css("stroke-dashoffset", length);
+        $('#' + obj[i].id).css("animation", "letterDraw linear forwards " + length * speed / 1000 + 's ' + total * speed / 1000 + 's');
+        total += length;
+      }
+    }
+  </script>
+
+</html>
