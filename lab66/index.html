@@ -1,14 +1,235 @@
 <!DOCTYPE html>
-<html lang="zh-Hant-TW">
-  <head>
+
+<html>
+
+<head>
     <meta charset="utf-8">
-    <title>D3 Page Template</title>
-    <script src="http://d3js.org/d3.v6.min.js" charset="utf-8"></script> <!-- v6.5.0 -->
+
+    <style>
+        html,
+        body {
+            height: 200%;
+        }
+
+        #training-section,
+        #testing-section {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #train-vs-test {
+            height: 100%;
+            position: fixed;
+            max-width: 100%;
+        }
+
+        .padding {
+            height: 100%;
+        }
+
+        #right {
+            width: 60%;
+            height: 100%;
+            position: relative;
+            float: right;
+        }
+
+        #left {
+            width: 40%;
+            height: 100%;
+            float: left;
+        }
+    </style>
 </head>
+
 <body>
-    <script type="text/javascript">
-      // Your beautiful D3 code will go here
+
+
+    <div id="right">
+        <div id="train-vs-test"></div>
+    </div>
+
+    <div id="left">
+        <div id="training-section">
+            <h2>
+                Training dataset
+            </h2>
+            <p>
+                The dataset was downloaded from the UCI Machine Learning Repository.
+            </p>
+            <p>
+                The two datasets are related to red and white variants of the Portuguese "Vinho Verde" wine. The
+                reference [Cortez et al., 2009].
+            </p>
+            <p>
+                Due to privacy and logistic issues, only physicochemical (inputs) and sensory (the output) variables are
+                available (e.g. there is no data about grape types, wine brand, wine selling price, etc.).
+            </p>
+            <p>
+                These datasets can be viewed as classification or regression tasks. The classes are ordered and not
+                balanced (e.g. there are munch more normal wines than excellent or poor ones).
+            </p>
+            <p>
+                Outlier detection algorithms could be used to detect the few excellent or poor wines. Also, we are not
+                sure if all input variables are relevant. So it could be interesting to test feature selection methods.
+            </p>
+            <p>
+                Two datasets were combined and few values were randomly removed.
+            </p>
+        </div>
+        <div id="testing-section">
+            <h2>
+                Testing dataset
+            </h2>
+            <p>
+                Attribute Information:
+            </p>
+            <p>
+                For more information, read [Cortez et al., 2009].
+            </p>
+            <p>
+                Input variables (based on physicochemical tests):
+            </p>
+            <p>
+                1 - fixed acidity
+            </p>
+            <p>
+            2 - volatile acidity
+            </p>
+            <p>
+                3 - citric acid
+            </p>
+            <p>
+                4 - residual sugar
+            </p>
+            <p>
+                5 - chlorides
+            </p>
+            <p>
+                6 - free sulfur dioxide
+            </p>
+            <p>
+                7 - total sulfur dioxide
+            </p>
+            <p>
+                8 - density
+            </p>
+            <p>
+                9 - pH
+            </p>
+            <p>
+                10 - sulphates
+            </p>
+            <p>
+                11 - alcohol
+            </p>
+            <p>
+                12 - quality (score between 0 and 10)
+            </p>
+        </div>
+    </div>
+
+
+
+
+    <script src="./lib/d3.v3.min.js"></script>
+    <script src="./lib/binarydecisiontree.min.js"></script>
+
+    <script>
+        var Lipsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+
+        window.onload = function () {
+            function resizeRight() {
+                d3.select("#train-vs-test")
+                    .style("width", d3.select("#right").node().clientWidth + "px")
+                    ;
+            }
+
+            resizeRight();
+
+            d3.select(window)
+                .on("resize", function () { resizeRight() })
+                ;
+
+
+            /**
+             * 填版面，不然全部都是白色的很單調
+             * 這兩個 section 是要讓同學放說明資料和圖片的地方
+            */
+            d3.select("#training-section")
+                .selectAll("p")
+                .data(d3.range(1, 10))
+                .enter()
+                .append("p")
+                //.text(Lipsum)
+                ;
+
+            d3.select("#testing-section")
+                .selectAll("p")
+                .data(d3.range(1, 10))
+                .enter()
+                .append("p")
+                //.text(Lipsum)
+                ;
+
+            d3.select("#training-section")
+                .selectAll("img")
+                .data(d3.range(1, 4))
+                .enter()
+                .append("img")
+                .attr("src", function (d) { return "media/" + d + ".jpg" })
+                // .style('height', '350px')
+                .style('width', '350px')
+                ;
+
+            d3.select("#testing-section")
+                .selectAll("img")
+                .data(d3.range(4, 7))
+                .enter()
+                .append("img")
+                .attr("src", function (d) { return "media/" + d + ".jpg" })
+                // .style('height', '350px')
+                 .style('width', '350px')
+                ;
+
+
+
+            var bdt = new BinaryDecisionTree({
+                el: "#train-vs-test",
+                trainingSection: "#training-section",
+                testSection: "#testing-section",
+
+                /**
+                 * 預設會讓小球在上方排排站
+                 * 如果不要排排站的話，必須要把這個 paramater 設成 false
+                 * 如果要排排站的話，直接註解掉這行就行
+                */
+                //flood: false
+            });
+
+            bdt.setDataFromJson("./dataset.json", function () {
+                bdt.install();
+                bdt.play();
+            })
+
+            /**
+             * or
+             * bdt.setDataFromObject({ 
+             *  tree_data: tree_data,
+             *  tree_training_set: tree_training_set,
+             *  tree_stats: tree_stats, 
+             *  tree_test_set: tree_test_set, 
+             *  test_stats : test_stats
+             * })
+             * 同步函式，不需要 callback
+             * bdt.install();
+             * bdt.play();
+            */
+        }
     </script>
-  </body>
+
+</body>
+
+
+
 </html>
-  
